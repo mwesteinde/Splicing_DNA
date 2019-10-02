@@ -42,7 +42,7 @@ public class DNA {
     private String sequence;
     private Set<String> codons;
     private Map<Character, Double> nucleotideMass = new HashMap<>();
-    private static double mass;
+    private double mass;
     private boolean protein;
     private Map<Character, Integer> nucleotideCountMap = new HashMap<>();
 
@@ -375,11 +375,12 @@ public class DNA {
         point.
          */
         int i = 0;
-        while (i < seqNoJunk.length() - restrictionEnzyme.length()) {
+        int length = seqNoJunk.length();
+        while (i < length) {
             boolean enzymeMatch = false;
             for (int j = 0; j < restrictionEnzyme.length(); j++) {
                 enzymeMatch = true;
-                if (sequence.charAt(i + j) != restrictionEnzyme.charAt(j)) {
+                if (seqNoJunk.charAt(i + j) != restrictionEnzyme.charAt(j)) {
                     newSeqBuilder.append(seqNoJunk.substring(i, i + DNA.CODON_LENGTH));
                     i = i + DNA.CODON_LENGTH;
                     enzymeMatch = false;
@@ -389,12 +390,33 @@ public class DNA {
             if (enzymeMatch) {
                 newSeqBuilder.append(seqNoJunk.substring(i, i + splicePosition));
                 newSeqBuilder.append(splicee);
-                newSeqBuilder.append(seqNoJunk.substring(i + splicePosition));
+                newSeqBuilder.append(seqNoJunk.substring(i + splicePosition, i + restrictionEnzyme.length()));
                 i = i + restrictionEnzyme.length();
             }
         }
 
         return new DNA(newSeqBuilder.toString());
 
+    }
+
+    @Override
+    public boolean equals(Object expected) {
+        DNA dexpected = (DNA) expected;
+        String sactual = this.sequence;
+        String sexpected = dexpected.sequence;
+        char [] cactual = sactual.toCharArray();
+        char [] cexpected = sexpected.toCharArray();
+
+        if (cactual.length != cexpected.length) {
+            return false;
+        }
+        for(int i = 0; i < cactual.length; i++) {
+            if (cactual[i] != cexpected[i]) {
+                return false;
+            }
+        }
+
+
+        return true;
     }
 }
